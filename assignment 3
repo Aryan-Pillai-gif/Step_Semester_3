@@ -1,0 +1,289 @@
+import java.util.*;
+
+interface Seat {
+
+    double getPrice();
+
+    String getCategory();
+}
+
+class RegularSeat implements Seat {
+
+    public double getPrice() {
+        return 150;
+    }
+
+    public String getCategory() {
+        return "Regular";
+    }
+}
+
+class PremiumSeat implements Seat {
+
+    public double getPrice() {
+        return 250;
+    }
+
+    public String getCategory() {
+        return "Premium";
+    }
+}
+
+class ReclinerSeat implements Seat {
+
+    public double getPrice() {
+        return 400;
+    }
+
+    public String getCategory() {
+        return "Recliner";
+    }
+}
+
+class Customer {
+
+    String name;
+
+    Customer(String name) {
+        this.name = name;
+    }
+}
+
+class SeatInfo {
+
+    String seatNumber;
+    Seat seatType;
+
+    SeatInfo(String seatNumber, Seat seatType) {
+        this.seatNumber = seatNumber;
+        this.seatType = seatType;
+    }
+}
+
+class Show {
+
+    String showName;
+    String time;
+
+    HashSet<String> bookedSeats =
+        new HashSet<>();
+
+    Show(String showName, String time) {
+        this.showName = showName;
+        this.time = time;
+    }
+
+    public boolean isAvailable(String seatNumber) {
+
+        return !bookedSeats.contains(seatNumber);
+    }
+
+    public boolean bookSeat(String seatNumber) {
+
+        if (!isAvailable(seatNumber)) {
+
+            System.out.println(
+                "Seat " + seatNumber +
+                " is already booked for this show."
+            );
+
+            return false;
+        }
+
+        bookedSeats.add(seatNumber);
+
+        return true;
+    }
+
+    public void releaseSeat(String seatNumber) {
+        bookedSeats.remove(seatNumber);
+    }
+}
+
+class Booking {
+
+    Customer customer;
+    Show show;
+    ArrayList<SeatInfo> seats =
+        new ArrayList<>();
+
+    boolean cancelled = false;
+
+    Booking(Customer customer, Show show) {
+        this.customer = customer;
+        this.show = show;
+    }
+
+    public boolean addSeat(
+        String seatNumber,
+        Seat seatType) {
+
+        if (seats.size() >= 6) {
+
+            System.out.println(
+                "Maximum 6 seats allowed per booking."
+            );
+
+            return false;
+        }
+
+        if (!show.bookSeat(seatNumber)) {
+            return false;
+        }
+
+        seats.add(
+            new SeatInfo(seatNumber, seatType)
+        );
+
+        return true;
+    }
+
+    public double getTotal() {
+
+        double total = 0;
+
+        for (SeatInfo seat : seats) {
+            total += seat.seatType.getPrice();
+        }
+
+        return total;
+    }
+
+    public void confirm() {
+
+        System.out.print(
+            "Booking confirmed for " +
+            customer.name + ": "
+        );
+
+        for (int i = 0; i < seats.size(); i++) {
+
+            System.out.print(
+                seats.get(i).seatNumber
+            );
+
+            if (i < seats.size() - 1) {
+                System.out.print(", ");
+            }
+        }
+
+        System.out.println();
+
+        System.out.printf(
+            "Total: ₹%.2f%n",
+            getTotal()
+        );
+    }
+
+    public void cancel(boolean showStarted) {
+
+        if (showStarted) {
+
+            System.out.println(
+                "Cannot cancel booking after the show has started."
+            );
+
+            return;
+        }
+
+        if (cancelled) {
+            System.out.println(
+                "Booking is already cancelled."
+            );
+            return;
+        }
+
+        for (SeatInfo seat : seats) {
+            show.releaseSeat(seat.seatNumber);
+        }
+
+        cancelled = true;
+
+        System.out.println(
+            customer.name +
+            "'s booking cancelled."
+        );
+
+        System.out.print(
+            "Seats "
+        );
+
+        for (int i = 0; i < seats.size(); i++) {
+
+            System.out.print(
+                seats.get(i).seatNumber
+            );
+
+            if (i < seats.size() - 1) {
+                System.out.print(", ");
+            }
+        }
+
+        System.out.println(" released.");
+    }
+}
+
+public class CampusPremiereTicketCounter {
+
+    public static void main(String[] args) {
+
+        Show show =
+            new Show("Campus Premiere", "7 PM");
+
+        Customer asha =
+            new Customer("Asha");
+
+        Customer ravi =
+            new Customer("Ravi");
+
+        Customer neha =
+            new Customer("Neha");
+
+        Booking ashaBooking =
+            new Booking(asha, show);
+
+        ashaBooking.addSeat(
+            "A1",
+            new RegularSeat()
+        );
+
+        ashaBooking.addSeat(
+            "A2",
+            new RegularSeat()
+        );
+
+        ashaBooking.addSeat(
+            "F5",
+            new PremiumSeat()
+        );
+
+        ashaBooking.confirm();
+
+        Booking raviBooking =
+            new Booking(ravi, show);
+
+        raviBooking.addSeat(
+            "A2",
+            new RegularSeat()
+        );
+
+        raviBooking.addSeat(
+            "R1",
+            new ReclinerSeat()
+        );
+
+        raviBooking.confirm();
+
+        ashaBooking.cancel(false);
+
+        Booking nehaBooking =
+            new Booking(neha, show);
+
+        nehaBooking.addSeat(
+            "A2",
+            new RegularSeat()
+        );
+
+        nehaBooking.confirm();
+    }
+}
