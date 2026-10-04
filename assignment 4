@@ -1,0 +1,236 @@
+interface MembershipPlan {
+
+    int getMonths();
+
+    double calculateFee();
+
+    String getName();
+}
+
+class MonthlyPlan implements MembershipPlan {
+
+    public int getMonths() {
+        return 1;
+    }
+
+    public double calculateFee() {
+        return 1000;
+    }
+
+    public String getName() {
+        return "Monthly";
+    }
+}
+
+class QuarterlyPlan implements MembershipPlan {
+
+    public int getMonths() {
+        return 3;
+    }
+
+    public double calculateFee() {
+        return 1000 * 3 * 0.90;
+    }
+
+    public String getName() {
+        return "Quarterly";
+    }
+}
+
+class AnnualPlan implements MembershipPlan {
+
+    public int getMonths() {
+        return 12;
+    }
+
+    public double calculateFee() {
+        return 1000 * 12 * 0.75;
+    }
+
+    public String getName() {
+        return "Annual";
+    }
+}
+
+class Member {
+
+    String name;
+
+    Member(String name) {
+        this.name = name;
+    }
+}
+
+class Membership {
+
+    private Member member;
+    private MembershipPlan plan;
+    private String status;
+
+    Membership(Member member, MembershipPlan plan) {
+
+        this.member = member;
+        this.plan = plan;
+        this.status = "Active";
+    }
+
+    public void showMembership() {
+
+        System.out.println(
+            plan.getName() +
+            " membership created for " +
+            member.name + "."
+        );
+
+        System.out.printf(
+            "Fee: ₹%.2f%n",
+            plan.calculateFee()
+        );
+
+        System.out.println(
+            "Status: " + status
+        );
+    }
+
+    public void checkIn() {
+
+        if (status.equals("Active")) {
+
+            System.out.println(
+                member.name +
+                " checked in successfully."
+            );
+
+        } else {
+
+            System.out.println(
+                "Check-in denied: " +
+                member.name +
+                "'s membership is " +
+                status + "."
+            );
+        }
+    }
+
+    public void freeze() {
+
+        if (status.equals("Expired")) {
+
+            System.out.println(
+                "Cannot freeze an Expired membership."
+            );
+
+            return;
+        }
+
+        if (status.equals("Frozen")) {
+
+            System.out.println(
+                "Membership is already Frozen."
+            );
+
+            return;
+        }
+
+        status = "Frozen";
+
+        System.out.println(
+            member.name +
+            "'s membership frozen."
+        );
+
+        System.out.println(
+            "Status: " + status
+        );
+    }
+
+    public void unfreeze() {
+
+        if (status.equals("Expired")) {
+
+            System.out.println(
+                "Cannot unfreeze an Expired membership."
+            );
+
+            return;
+        }
+
+        if (!status.equals("Frozen")) {
+
+            System.out.println(
+                "Membership is not Frozen."
+            );
+
+            return;
+        }
+
+        status = "Active";
+
+        System.out.println(
+            member.name +
+            "'s membership unfrozen."
+        );
+
+        System.out.println(
+            "Status: " + status
+        );
+    }
+
+    public void expire() {
+
+        status = "Expired";
+
+        System.out.println(
+            member.name +
+            "'s membership expired."
+        );
+
+        System.out.println(
+            "Status: " + status
+        );
+    }
+}
+
+public class FitZoneMembershipDesk {
+
+    public static void main(String[] args) {
+
+        Member asha =
+            new Member("Asha");
+
+        Member ravi =
+            new Member("Ravi");
+
+        Membership ashaMembership =
+            new Membership(
+                asha,
+                new QuarterlyPlan()
+            );
+
+        Membership raviMembership =
+            new Membership(
+                ravi,
+                new MonthlyPlan()
+            );
+
+        ashaMembership.showMembership();
+
+        System.out.println();
+
+        raviMembership.showMembership();
+
+        System.out.println();
+
+        ashaMembership.checkIn();
+
+        ashaMembership.freeze();
+
+        ashaMembership.checkIn();
+
+        System.out.println();
+
+        raviMembership.expire();
+
+        raviMembership.freeze();
+    }
+}
