@@ -1,0 +1,165 @@
+import java.time.LocalDate;
+
+interface LeavePolicy {
+    boolean canTakeLeave(int days);
+}
+
+abstract class Employee implements LeavePolicy {
+    String name;
+    String employeeId;
+
+    Employee(String name, String employeeId) {
+        this.name = name;
+        this.employeeId = employeeId;
+    }
+
+    public abstract boolean canTakeLeave(int days);
+}
+
+class FullTimeEmployee extends Employee {
+
+    FullTimeEmployee(String name, String employeeId) {
+        super(name, employeeId);
+    }
+
+    public boolean canTakeLeave(int days) {
+        return days <= 20;
+    }
+}
+
+class PartTimeEmployee extends Employee {
+
+    PartTimeEmployee(String name, String employeeId) {
+        super(name, employeeId);
+    }
+
+    public boolean canTakeLeave(int days) {
+        return days <= 10;
+    }
+}
+
+class Contractor extends Employee {
+
+    Contractor(String name, String employeeId) {
+        super(name, employeeId);
+    }
+
+    public boolean canTakeLeave(int days) {
+        return days <= 5;
+    }
+}
+
+class Reviewer {
+    String name;
+
+    Reviewer(String name) {
+        this.name = name;
+    }
+}
+
+class LeaveRequest {
+
+    Employee employee;
+    LocalDate startDate;
+    LocalDate endDate;
+    String status;
+
+    LeaveRequest(Employee employee, LocalDate startDate, LocalDate endDate) {
+
+        this.employee = employee;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = "Pending";
+    }
+
+    public int getDays() {
+        return (int) (endDate.toEpochDay() - startDate.toEpochDay()) + 1;
+    }
+
+    public void approve(Reviewer reviewer) {
+
+        if (!status.equals("Pending")) {
+            System.out.println("Cannot approve a request that is already " + status + ".");
+            return;
+        }
+
+        if (!employee.canTakeLeave(getDays())) {
+            System.out.println("Leave policy does not allow this request.");
+            return;
+        }
+
+        status = "Approved";
+
+        System.out.println(employee.name + "'s leave request (" +
+                startDate + " to " + endDate + ") approved.");
+        System.out.println("Status: " + status);
+    }
+
+    public void reject(Reviewer reviewer) {
+
+        if (!status.equals("Pending")) {
+            System.out.println("Cannot reject a request that is already " + status + ".");
+            return;
+        }
+
+        status = "Rejected";
+
+        System.out.println(employee.name + "'s leave request (" +
+                startDate + " to " + endDate + ") rejected.");
+        System.out.println("Status: " + status);
+    }
+
+    public void changeStatus(String newStatus) {
+
+        if (!status.equals("Pending")) {
+            System.out.println("Cannot change leave request status from " +
+                    status + " to " + newStatus + ".");
+            return;
+        }
+
+        status = newStatus;
+    }
+}
+
+public class EmployeeLeaveSystem {
+
+    public static void main(String[] args) {
+
+        FullTimeEmployee john =
+                new FullTimeEmployee("John", "E101");
+
+        PartTimeEmployee jane =
+                new PartTimeEmployee("Jane", "E102");
+
+        Reviewer alice = new Reviewer("Alice");
+        Reviewer bob = new Reviewer("Bob");
+
+        LeaveRequest johnRequest = new LeaveRequest(
+                john,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 5)
+        );
+
+        System.out.println("Leave request submitted for John (Jan 1-5).");
+        System.out.println("Status: " + johnRequest.status);
+
+        johnRequest.approve(alice);
+
+        LeaveRequest janeRequest = new LeaveRequest(
+                jane,
+                LocalDate.of(2026, 2, 10),
+                LocalDate.of(2026, 2, 11)
+        );
+
+        System.out.println();
+
+        System.out.println("Leave request submitted for Jane (Feb 10-11).");
+        System.out.println("Status: " + janeRequest.status);
+
+        janeRequest.reject(bob);
+
+        System.out.println();
+
+        johnRequest.changeStatus("Pending");
+    }
+}
