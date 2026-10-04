@@ -1,0 +1,262 @@
+import java.time.LocalDate;
+import java.util.*;
+
+abstract class Room {
+
+    String roomNumber;
+    String type;
+
+    Room(String roomNumber, String type) {
+        this.roomNumber = roomNumber;
+        this.type = type;
+    }
+
+    public abstract double calculatePrice(int days);
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+}
+
+class StandardRoom extends Room {
+
+    StandardRoom(String roomNumber) {
+        super(roomNumber, "Standard Room");
+    }
+
+    public double calculatePrice(int days) {
+        return days * 100;
+    }
+}
+
+class DeluxeRoom extends Room {
+
+    DeluxeRoom(String roomNumber) {
+        super(roomNumber, "Deluxe Room");
+    }
+
+    public double calculatePrice(int days) {
+        return days * 150;
+    }
+}
+
+class Suite extends Room {
+
+    Suite(String roomNumber) {
+        super(roomNumber, "Suite");
+    }
+
+    public double calculatePrice(int days) {
+        return days * 250;
+    }
+}
+
+class Customer {
+
+    String name;
+
+    Customer(String name) {
+        this.name = name;
+    }
+}
+
+class Reservation {
+
+    Customer customer;
+    Room room;
+    LocalDate startDate;
+    LocalDate endDate;
+    LocalDate cancellationDeadline;
+    boolean cancelled;
+
+    Reservation(Customer customer, Room room,
+                LocalDate startDate, LocalDate endDate,
+                LocalDate cancellationDeadline) {
+
+        this.customer = customer;
+        this.room = room;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.cancellationDeadline = cancellationDeadline;
+        this.cancelled = false;
+    }
+
+    public int getDays() {
+        return (int) (endDate.toEpochDay() - startDate.toEpochDay());
+    }
+
+    public double getPrice() {
+        return room.calculatePrice(getDays());
+    }
+
+    public boolean isOverlapping(LocalDate start, LocalDate end) {
+
+        if (cancelled) {
+            return false;
+        }
+
+        return start.isBefore(endDate) && end.isAfter(startDate);
+    }
+
+    public void cancel(LocalDate today) {
+
+        if (cancelled) {
+            System.out.println("Reservation is already cancelled.");
+            return;
+        }
+
+        if (today.isAfter(cancellationDeadline)) {
+            System.out.println(
+                    "Cancellation deadline has passed.");
+            return;
+        }
+
+        cancelled = true;
+
+        System.out.println(
+                "Reservation for " + customer.name +
+                ", " + room.getRoomNumber() +
+                " cancelled successfully.");
+    }
+}
+
+class Hotel {
+
+    ArrayList<Room> rooms = new ArrayList<>();
+    ArrayList<Reservation> reservations = new ArrayList<>();
+
+    public void addRoom(Room room) {
+        rooms.add(room);
+    }
+
+    public boolean isAvailable(Room room,
+                               LocalDate start,
+                               LocalDate end) {
+
+        for (Reservation reservation : reservations) {
+
+            if (reservation.room == room &&
+                reservation.isOverlapping(start, end)) {
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void checkAvailability(Room room,
+                                   LocalDate start,
+                                   LocalDate end) {
+
+        if (isAvailable(room, start, end)) {
+
+            System.out.println(
+                    room.getType() + " " +
+                    room.getRoomNumber() +
+                    " is available from " +
+                    start + " to " + end + ".");
+        }
+        else {
+
+            System.out.println(
+                    room.getType() + " " +
+                    room.getRoomNumber() +
+                    " is not available from " +
+                    start + " to " + end + ".");
+        }
+    }
+
+    public Reservation bookRoom(Customer customer,
+                                Room room,
+                                LocalDate start,
+                                LocalDate end,
+                                LocalDate cancellationDeadline) {
+
+        if (!isAvailable(room, start, end)) {
+
+            System.out.println(
+                    room.getType() + " " +
+                    room.getRoomNumber() +
+                    " is not available from " +
+                    start + " to " + end + ".");
+
+            return null;
+        }
+
+        Reservation reservation = new Reservation(
+                customer,
+                room,
+                start,
+                end,
+                cancellationDeadline
+        );
+
+        reservations.add(reservation);
+
+        System.out.println(
+                "Reservation confirmed for " +
+                customer.name + ", " +
+                room.getType() + " " +
+                room.getRoomNumber() +
+                " (" + start + " to " + end + ").");
+
+        System.out.println(
+                "Price: $" + reservation.getPrice());
+
+        return reservation;
+    }
+}
+
+public class HotelBookingSystem {
+
+    public static void main(String[] args) {
+
+        Hotel hotel = new Hotel();
+
+        Room standard101 = new StandardRoom("101");
+        Room deluxe201 = new DeluxeRoom("201");
+
+        hotel.addRoom(standard101);
+        hotel.addRoom(deluxe201);
+
+        Customer customerA = new Customer("Customer A");
+        Customer customerB = new Customer("Customer B");
+        Customer customerC = new Customer("Customer C");
+
+        LocalDate jan1 = LocalDate.of(2026, 1, 1);
+        LocalDate jan5 = LocalDate.of(2026, 1, 5);
+
+        hotel.checkAvailability(
+                standard101, jan1, jan5);
+
+        Reservation reservationA = hotel.bookRoom(
+                customerA,
+                standard101,
+                jan1,
+                jan5,
+                LocalDate.of(2025, 12, 30)
+        );
+
+        hotel.bookRoom(
+                customerB,
+                standard101,
+                LocalDate.of(2026, 1, 3),
+                LocalDate.of(2026, 1, 7),
+                LocalDate.of(2026, 1, 1)
+        );
+
+        if (reservationA != null) {
+            reservationA.cancel(
+                    LocalDate.of(2025, 12, 29));
+        }
+
+        hotel.bookRoom(
+                customerC,
+                deluxe201,
+                LocalDate.of(2026, 2, 10),
+                LocalDate.of(2026, 2, 12),
+                LocalDate.of(2026, 2, 5)
+        );
+    }
+}
