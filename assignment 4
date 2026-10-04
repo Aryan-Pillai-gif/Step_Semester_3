@@ -1,0 +1,31 @@
+def countAlerts(readings, k, threshold):
+
+    current_sum = 0
+    count = 0
+
+    # First window
+    for i in range(k):
+        current_sum += readings[i]
+
+    if current_sum >= k * threshold:
+        count += 1
+
+    # Slide the window
+    for i in range(k, len(readings)):
+
+        current_sum += readings[i]
+        current_sum -= readings[i - k]
+
+        if current_sum >= k * threshold:
+            count += 1
+
+    return count
+
+
+# Example
+readings = [2, 2, 2, 2, 5, 5, 5, 8]
+
+k = 3
+threshold = 4
+
+print(countAlerts(readings, k, threshold))
