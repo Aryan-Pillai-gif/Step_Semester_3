@@ -1,0 +1,33 @@
+def findSlot(prices, newPrice):
+
+    low = 0
+    high = len(prices)
+
+    while low < high:
+
+        mid = (low + high) // 2
+
+        if prices[mid] < newPrice:
+            low = mid + 1
+        else:
+            high = mid
+
+    return low
+
+
+# Example 1
+prices = [120, 150, 200, 260]
+
+print(findSlot(prices, 150))
+
+
+# Example 2
+prices = [120, 150, 200, 260]
+
+print(findSlot(prices, 210))
+
+
+# Example 3
+prices = [120, 150, 200, 260]
+
+print(findSlot(prices, 300))
