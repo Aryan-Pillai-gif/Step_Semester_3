@@ -1,0 +1,48 @@
+def mostPopular(orders):
+
+    count = {}
+
+    # Count every item
+    for item in orders:
+
+        if item in count:
+            count[item] += 1
+        else:
+            count[item] = 1
+
+    best_item = orders[0]
+    best_count = count[best_item]
+
+    # Scan in original order
+    for item in orders:
+
+        if count[item] > best_count:
+            best_item = item
+            best_count = count[item]
+
+    return (best_item, best_count)
+
+
+# Example 1
+orders = [
+    "dosa",
+    "idli",
+    "vada",
+    "dosa",
+    "idli",
+    "dosa",
+    "tea"
+]
+
+print(mostPopular(orders))
+
+
+# Example 2
+orders = [
+    "tea",
+    "coffee",
+    "coffee",
+    "tea"
+]
+
+print(mostPopular(orders))
