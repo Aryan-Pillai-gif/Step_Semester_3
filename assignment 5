@@ -1,0 +1,229 @@
+import java.util.*;
+
+interface NotificationChannel {
+
+    void send(String studentName, String message);
+}
+
+class EmailChannel implements NotificationChannel {
+
+    public void send(String studentName, String message) {
+
+        System.out.println(
+            "[Email → " +
+            studentName +
+            "] " +
+            message
+        );
+    }
+}
+
+class SmsChannel implements NotificationChannel {
+
+    public void send(String studentName, String message) {
+
+        System.out.println(
+            "[SMS → " +
+            studentName +
+            "] " +
+            message
+        );
+    }
+}
+
+class AppChannel implements NotificationChannel {
+
+    public void send(String studentName, String message) {
+
+        System.out.println(
+            "[App → " +
+            studentName +
+            "] " +
+            message
+        );
+    }
+}
+
+class Student {
+
+    String name;
+    String department;
+
+    ArrayList<NotificationChannel> channels =
+        new ArrayList<>();
+
+    Student(String name, String department) {
+
+        this.name = name;
+        this.department = department;
+    }
+
+    public void addChannel(
+        NotificationChannel channel) {
+
+        channels.add(channel);
+    }
+}
+
+class Notice {
+
+    String title;
+    HashSet<String> departments;
+
+    Notice(String title,
+           HashSet<String> departments) {
+
+        this.title = title;
+        this.departments = departments;
+    }
+
+    public boolean isValid() {
+
+        if (title == null ||
+            title.trim().isEmpty()) {
+
+            return false;
+        }
+
+        if (departments == null ||
+            departments.isEmpty()) {
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
+class NoticeBoard {
+
+    ArrayList<Student> students =
+        new ArrayList<>();
+
+    public void addStudent(Student student) {
+        students.add(student);
+    }
+
+    public void postNotice(Notice notice) {
+
+        if (!notice.isValid()) {
+
+            System.out.println(
+                "Cannot post notice: " +
+                "At least one target department is required."
+            );
+
+            return;
+        }
+
+        System.out.print(
+            "Notice '" +
+            notice.title +
+            "' posted to "
+        );
+
+        int count = 0;
+
+        for (String department :
+             notice.departments) {
+
+            System.out.print(department);
+
+            count++;
+
+            if (count < notice.departments.size()) {
+                System.out.print(", ");
+            }
+        }
+
+        System.out.println(".");
+
+        for (Student student : students) {
+
+            if (notice.departments.contains(
+                    student.department)) {
+
+                for (NotificationChannel channel :
+                     student.channels) {
+
+                    channel.send(
+                        student.name,
+                        notice.title
+                    );
+                }
+            }
+        }
+    }
+}
+
+public class CampusNoticeBroadcaster {
+
+    public static void main(String[] args) {
+
+        NoticeBoard board =
+            new NoticeBoard();
+
+        Student asha =
+            new Student("Asha", "CSE");
+
+        Student ravi =
+            new Student("Ravi", "ECE");
+
+        asha.addChannel(
+            new EmailChannel()
+        );
+
+        asha.addChannel(
+            new AppChannel()
+        );
+
+        ravi.addChannel(
+            new SmsChannel()
+        );
+
+        board.addStudent(asha);
+        board.addStudent(ravi);
+
+        HashSet<String> cse =
+            new HashSet<>();
+
+        cse.add("CSE");
+
+        Notice notice1 =
+            new Notice(
+                "Lab Closed Tomorrow",
+                cse
+            );
+
+        board.postNotice(notice1);
+
+        System.out.println();
+
+        HashSet<String> cseEce =
+            new HashSet<>();
+
+        cseEce.add("CSE");
+        cseEce.add("ECE");
+
+        Notice notice2 =
+            new Notice(
+                "Fee Deadline Extended",
+                cseEce
+            );
+
+        board.postNotice(notice2);
+
+        System.out.println();
+
+        HashSet<String> empty =
+            new HashSet<>();
+
+        Notice notice3 =
+            new Notice(
+                "Sports Day",
+                empty
+            );
+
+        board.postNotice(notice3);
+    }
+}
