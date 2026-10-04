@@ -1,0 +1,204 @@
+import java.util.*;
+
+class Product {
+
+    String name;
+    double price;
+
+    Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+}
+
+class OrderItem {
+
+    Product product;
+    int quantity;
+
+    OrderItem(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
+
+    public double getTotal() {
+        return product.price * quantity;
+    }
+}
+
+interface PaymentMethod {
+    boolean processPayment(double amount);
+}
+
+class CreditCardPayment implements PaymentMethod {
+
+    public boolean processPayment(double amount) {
+
+        System.out.println(
+                "Processing Credit Card payment of $" + amount);
+
+        return true;
+    }
+}
+
+class PayPalPayment implements PaymentMethod {
+
+    public boolean processPayment(double amount) {
+
+        System.out.println(
+                "Processing PayPal payment of $" + amount);
+
+        return false;
+    }
+}
+
+class BankTransferPayment implements PaymentMethod {
+
+    public boolean processPayment(double amount) {
+
+        System.out.println(
+                "Processing Bank Transfer payment of $" + amount);
+
+        return true;
+    }
+}
+
+class Customer {
+
+    String name;
+
+    Customer(String name) {
+        this.name = name;
+    }
+}
+
+class Order {
+
+    String orderId;
+    Customer customer;
+    ArrayList<OrderItem> items = new ArrayList<>();
+    String status = "Pending";
+
+    Order(String orderId, Customer customer) {
+        this.orderId = orderId;
+        this.customer = customer;
+
+        System.out.println(
+                "Order created for " + customer.name + ".");
+    }
+
+    public void addProduct(Product product, int quantity) {
+
+        if (quantity <= 0) {
+            System.out.println("Invalid quantity.");
+            return;
+        }
+
+        items.add(new OrderItem(product, quantity));
+    }
+
+    public double calculateTotal() {
+
+        double total = 0;
+
+        for (OrderItem item : items) {
+            total += item.getTotal();
+        }
+
+        return total;
+    }
+
+    public void pay(PaymentMethod paymentMethod,
+                    String paymentName) {
+
+        if (items.isEmpty()) {
+
+            System.out.println(
+                    "Cannot process payment for an empty order.");
+            return;
+        }
+
+        System.out.println(
+                "Payment initiated via " +
+                paymentName +
+                " for Order " + orderId + ".");
+
+        boolean success =
+                paymentMethod.processPayment(calculateTotal());
+
+        if (success) {
+
+            status = "Paid";
+
+            System.out.println(
+                    "Payment for Order " +
+                    orderId + " successful.");
+
+        } else {
+
+            System.out.println(
+                    "Payment for Order " +
+                    orderId + " failed.");
+        }
+
+        System.out.println(
+                "Order status: " + status);
+    }
+}
+
+public class PaymentProcessingSystem {
+
+    public static void main(String[] args) {
+
+        Customer customerX =
+                new Customer("Customer X");
+
+        Product productA =
+                new Product("Product A", 100);
+
+        Product productB =
+                new Product("Product B", 200);
+
+        Order orderX =
+                new Order("X", customerX);
+
+        orderX.addProduct(productA, 2);
+        orderX.addProduct(productB, 1);
+
+        orderX.pay(
+                new CreditCardPayment(),
+                "Credit Card"
+        );
+
+        System.out.println();
+
+        Customer customerY =
+                new Customer("Customer Y");
+
+        Order orderY =
+                new Order("Y", customerY);
+
+        orderY.pay(
+                new CreditCardPayment(),
+                "Credit Card"
+        );
+
+        System.out.println();
+
+        Customer customerZ =
+                new Customer("Customer Z");
+
+        Product productC =
+                new Product("Product C", 300);
+
+        Order orderZ =
+                new Order("Z", customerZ);
+
+        orderZ.addProduct(productC, 1);
+
+        orderZ.pay(
+                new PayPalPayment(),
+                "PayPal"
+        );
+    }
+}
