@@ -1,0 +1,24 @@
+def warehouseSummary(grid):
+    total_items = 0
+    max_value = -1
+    max_coordinate = (0, 0)
+
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            total_items += grid[i][j]
+
+            if grid[i][j] > max_value:
+                max_value = grid[i][j]
+                max_coordinate = (i, j)
+
+    return (total_items, max_coordinate)
+
+
+# Example
+grid = [
+    [4, 9, 2],
+    [7, 1, 6],
+    [3, 12, 5]
+]
+
+print(warehouseSummary(grid))
