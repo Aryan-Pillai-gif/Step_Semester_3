@@ -1,0 +1,116 @@
+
+import java.util.*;
+
+abstract class Staff {
+    String name;
+    String type;
+
+    Staff(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    abstract int calculatePay();
+
+    @Override
+    public String toString() {
+        return "Payslip[name=" + name +
+               ", type=" + type +
+               ", pay=" + calculatePay() + "]";
+    }
+}
+
+class FullTime extends Staff {
+    int salary;
+
+    FullTime(String name, int salary) {
+        super(name, "FullTime");
+        this.salary = salary;
+    }
+
+    int calculatePay() {
+        return salary;
+    }
+}
+
+class PartTime extends Staff {
+    int hours, rate;
+
+    PartTime(String name, int hours, int rate) {
+        super(name, "PartTime");
+        this.hours = hours;
+        this.rate = rate;
+    }
+
+    int calculatePay() {
+        return hours * rate;
+    }
+}
+
+class Intern extends Staff {
+    int stipend;
+
+    Intern(String name, int stipend) {
+        super(name, "Intern");
+        this.stipend = stipend;
+    }
+
+    int calculatePay() {
+        return stipend;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        List<Staff> staffList = new ArrayList<>();
+
+        while (sc.hasNext()) {
+            String type = sc.next();
+            String name = sc.next();
+
+            switch (type) {
+                case "FullTime":
+                    staffList.add(
+                        new FullTime(name, sc.nextInt())
+                    );
+                    break;
+
+                case "PartTime":
+                    int hours = sc.nextInt();
+                    int rate = sc.nextInt();
+                    staffList.add(
+                        new PartTime(name, hours, rate)
+                    );
+                    break;
+
+                case "Intern":
+                    staffList.add(
+                        new Intern(name, sc.nextInt())
+                    );
+                    break;
+            }
+        }
+
+        int total = 0;
+        Staff topper = null;
+
+        for (Staff s : staffList) {
+            System.out.println(s);
+            total += s.calculatePay();
+
+            if (topper == null ||
+                s.calculatePay() > topper.calculatePay()) {
+                topper = s;
+            }
+        }
+
+        System.out.println("Total " + total);
+
+        if (topper != null) {
+            System.out.println("top earner " + topper.name);
+        }
+
+        sc.close();
+    }
+}
